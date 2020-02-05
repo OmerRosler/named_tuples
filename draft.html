@@ -1,3 +1,7 @@
+<html>
+<head>
+</head>
+<body>
 <h1 style="color: #5e9ca0;">C++ argument passing</h1>
 <h2 style="color: #2e6c80;">The problems</h2>
 <p>1. Unpacking a sum type using structured binding is not type safe.</p>
@@ -53,7 +57,7 @@ double radius(auto [double .x, double .y] cartesian) { //short-hand concept synt
     auto[x, y] = cartesian;
     return std::sqrt(x * x + y * y);
 }
-<br />
+
 double radius(auto [double .r, double .theta] polar) {
     return polar.r;
 }
@@ -63,3 +67,5 @@ double baz()
     return radius({.x = 3.0, .y = 4.0});
 }
 </code></pre>
+</body>
+</html>
