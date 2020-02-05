@@ -1,0 +1,65 @@
+<h1 style="color: #5e9ca0;">C++ argument passing</h1>
+<h2 style="color: #2e6c80;">The problems</h2>
+<p>1. Unpacking a sum type using structured binding is not type safe.</p>
+<p>The contract provided by the type is the types of the members, their names and the order of evaluation of their initializer sub-expressions.</p>
+<p>Structured binding only captures the number of members and their order of evaluation, but not the types or names of the members.</p>
+<p>2. In C++17, in order to mimic multiple return value functions, users either create a one-time only struct or use a tuple.</p>
+<p>Both these approaches have drawbacks:</p>
+<p>&nbsp; &nbsp; a. Tuples provide a narrow contract - no member names are given.</p>
+<p>&nbsp; &nbsp; b. structs used solely  for packing a "named tuple" provide a wide contract - the layout is part of the contract. </p>
+<p>In both cases non-copyable types for members are impossible as copy elision is forbidden in these cases due to the intermediate struct</p>    
+<p>&nbsp;</p>
+<h2 style="color: #2e6c80;">The solution</h2>
+<p>1. Introduce a new rule for unpacking a sum type that requires the user to know the names of the arguments.</p>
+<p>This paper's approach: </p>
+<pre><qoute> Types which are not visible but reachable, unpacked in a structured binding declaration, must use the right names of the members.</qoute></pre>
+<pre><code>
+module lib;
+
+struct result_t { // not exported
+    int a;
+    int b;
+};
+export result_t foo();
+
+module user;
+import lib;
+
+void bar() {
+
+//    auto[b, a] = foo(); // Error: wrong names
+
+    auto[a, b] = foo(); // OK
+
+    auto[a1 = .a, b1 = .b] = foo(); // OK
+
+//    auto[b2 = .b, a2 = .a] = foo(); // Error: Wrong order
+
+}
+</code></pre>
+<p>2. Introduce a syntax to create anonymous sum types concepts.</p>
+<pre><code>
+module lib;
+
+export auto foo() -> [int .a, int .b] {
+    return {.a = 4, .b = 2};
+}
+</code></pre>
+
+<p>The `[]` expression evaluates to an unnamed concept with the given member names and order (but no layout is mandated).</p>
+<p>3. Designated initializer evaluate to an unnamed type bound to the given concept.</p>
+<pre><code>
+double radius(auto [double .x, double .y] cartesian) { //short-hand concept syntax for templated function
+    auto[x, y] = cartesian;
+    return std::sqrt(x * x + y * y);
+}
+<br />
+double radius(auto [double .r, double .theta] polar) {
+    return polar.r;
+}
+
+double baz()
+{
+    return radius({.x = 3.0, .y = 4.0});
+}
+</code></pre>
