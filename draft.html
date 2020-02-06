@@ -51,7 +51,7 @@ export auto foo() -> [int .a, int .b] {
 </code></pre>
 
 <p>The `[]` expression evaluates to an unnamed concept with the given member names and order (but no layout is mandated).</p>
-<p>3. Designated initializer evaluate to an unnamed type bound to the given concept.</p>
+<p>3. Designated initializer evaluate to an unnamed type bound to the given concept which is not copyable nor movable.</p>
 <pre><code>
 double radius(auto [double .x, double .y] cartesian) { //short-hand concept syntax for templated function
     auto[x, y] = cartesian;
